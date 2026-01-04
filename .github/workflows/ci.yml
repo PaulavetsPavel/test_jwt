@@ -1,0 +1,41 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create environment variables
+        run: |
+          echo "JWT_ACCESS_SECRET=test_access_secret" >> .env
+          echo "JWT_REFRESH_SECRET=test_refresh_secret" >> .env
+          echo "JWT_ACCESS_EXPIRES_IN=15m" >> .env
+          echo "JWT_REFRESH_EXPIRES_IN=7d" >> .env
+          echo "PORT=3000" >> .env
+
+      - name: Run tests
+        run: npm test
+
+      - name: Deploy (simulation)
+        run: |
+          echo "Deploying application..."
+          npm start &
+          sleep 5
+          echo "Application deployed successfully"
